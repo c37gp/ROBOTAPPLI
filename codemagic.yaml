@@ -6,39 +6,26 @@ workflows:
 
     environment:
       java: 17
-
-      # cache Gradle pour accélérer + stabilité
-      cache:
-        cache_paths:
-          - ~/.gradle/caches
-          - ~/.gradle/wrapper
-
       vars:
-        GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4096m -Dkotlin.daemon.jvm.options=-Xmx2048m"
+        GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4096m"
 
     scripts:
-
-      - name: Show environment info
+      - name: Show environment
         script: |
           java -version
-          echo "Root structure:"
           ls -R
 
-      - name: Fix permissions (IMPORTANT)
+      - name: Fix gradlew permissions
         script: |
-          chmod +x gradlew || true
+          chmod +x gradlew
 
-      - name: Validate Gradle wrapper
+      - name: Verify gradlew
         script: |
           ./gradlew --version
 
       - name: Clean project
         script: |
           ./gradlew clean
-
-      - name: Download dependencies (pre-cache)
-        script: |
-          ./gradlew dependencies
 
       - name: Build debug APK
         script: |
