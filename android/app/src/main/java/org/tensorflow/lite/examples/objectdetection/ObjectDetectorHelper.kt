@@ -20,6 +20,12 @@ class ObjectDetectorHelper(
     var currentModel: Int = 0,
     val context: Context,
     val objectDetectorListener: DetectorListener?
+    // 🤖 BRANCHEMENT EXTERNE ROBOT (V3)
+    private var externalListener: ((String, Float) -> Unit)? = null
+
+    fun setExternalListener(listener: (String, Float) -> Unit) {
+        externalListener = listener
+    }
 ) {
 
     private var objectDetector: ObjectDetector? = null
