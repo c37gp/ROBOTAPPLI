@@ -21,15 +21,15 @@ workflows:
 
       - name: Verify gradlew
         script: |
-          ./gradlew --version
+          ./android/gradlew --version
 
       - name: Clean project
         script: |
-          ./gradlew clean
+          ./androis/gradlew clean
 
       - name: Build debug APK
         script: |
-          ./gradlew assembleDebug --stacktrace
+          ./android/gradlew assembleDebug --stacktrace
 
     artifacts:
       - app/build/outputs/apk/debug/*.apk
