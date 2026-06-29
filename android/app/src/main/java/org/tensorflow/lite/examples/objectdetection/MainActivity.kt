@@ -11,39 +11,48 @@ class MainActivity : AppCompatActivity() {
     private lateinit var activityMainBinding: ActivityMainBinding
     private lateinit var robotController: RobotController
 
+    // 👉 IMPORTANT : référence vers l’IA
+    private var objectDetectorHelper: ObjectDetectorHelper? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(activityMainBinding.root)
 
-        // 🤖 INIT ROBOT LAYER
+        // 🤖 ROBOT INIT
         robotController = RobotController()
         robotController.start()
 
-        // 🔥 HOOK: connexion IA → robot
-        initRobotHook()
+        // 🔥 ATTENDRE QUE L’IA EXISTE PUIS BRANCHER
+        setupAIHook()
     }
 
-    /**
-     * Upgrade v2 : liaison propre avec le flux TensorFlow
-     * (on intercepte les résultats de détection sans casser le code IA)
-     */
-    private fun initRobotHook() {
+    private fun setupAIHook() {
 
-        // ⚠️ IMPORTANT :
-        // TensorFlow Lite appelle généralement un fragment pour les résultats.
-        // On crée un observer simple via callback global.
+        // ⚠️ Ici on doit attendre que le helper soit créé ailleurs dans le code
+        // Dans la base TensorFlow, il est souvent dans CameraFragment
 
-        val fragment = supportFragmentManager.findFragmentById(
-            R.id.fragment_container
-        )
+        // 👉 SOLUTION SIMPLE : boucle de tentative (safe)
+        activityMainBinding.root.postDelayed({
 
-        if (fragment is ObjectDetectorFragmentHook) {
-            fragment.setDetectionListener { label, score ->
-                robotController.onDetection(label, score)
+            try {
+                val fragment = supportFragmentManager
+                    .fragments
+                    .firstOrNull()
+
+                if (fragment is ObjectDetectorFragmentHook) {
+
+                    fragment.setDetectionListener { label, score ->
+                        robotController.onDetection(label, score)
+                    }
+                }
+
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-        }
+
+        }, 1500)
     }
 
     override fun onBackPressed() {
