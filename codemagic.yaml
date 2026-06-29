@@ -1,33 +1,52 @@
 workflows:
-  android-build:
-    name: Robot Android Build
+  android-robot-build:
+    name: Robot Android Stable Build
 
     max_build_duration: 120
 
     environment:
       java: 17
+
+      # cache Gradle pour accélérer + stabilité
+      cache:
+        cache_paths:
+          - ~/.gradle/caches
+          - ~/.gradle/wrapper
+
       vars:
-        GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4096m"
+        GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4096m -Dkotlin.daemon.jvm.options=-Xmx2048m"
 
     scripts:
-      - name: Check project structure
+
+      - name: Show environment info
         script: |
+          java -version
+          echo "Root structure:"
           ls -R
 
-      - name: Fix gradlew permissions
+      - name: Fix permissions (IMPORTANT)
         script: |
-          chmod +x gradlew
+          chmod +x gradlew || true
+
+      - name: Validate Gradle wrapper
+        script: |
+          ./gradlew --version
 
       - name: Clean project
         script: |
           ./gradlew clean
 
+      - name: Download dependencies (pre-cache)
+        script: |
+          ./gradlew dependencies
+
       - name: Build debug APK
         script: |
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --stacktrace
 
     artifacts:
       - app/build/outputs/apk/debug/*.apk
+      - android/app/build/outputs/apk/debug/*.apk
 
     publishing:
       email:
