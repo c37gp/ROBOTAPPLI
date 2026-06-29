@@ -5,22 +5,29 @@ workflows:
     max_build_duration: 120
 
     environment:
+      java: 17
       vars:
         GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4096m"
-      java: 17
 
     scripts:
       - name: Check project structure
         script: |
           ls -R
 
+      - name: Fix gradlew permissions
+        script: |
+          chmod +x gradlew
+
+      - name: Clean project
+        script: |
+          ./gradlew clean
+
       - name: Build debug APK
         script: |
-          cd android
           ./gradlew assembleDebug
 
     artifacts:
-      - android/app/build/outputs/apk/debug/*.apk
+      - app/build/outputs/apk/debug/*.apk
 
     publishing:
       email:
