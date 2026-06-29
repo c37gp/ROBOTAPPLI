@@ -1,33 +1,52 @@
 package com.robot.control
 
-class RobotController {
+import android.content.Context
+import com.robot.ai.AIController
 
-    // 🤖 mode : auto = IA contrôle, manuel = téléphone contrôle
-    private var autoMode: Boolean = true
+class RobotController(private val context: Context? = null) {
 
-    private val microbit = MicrobitSender()
+    // 🤖 modes
+    private var autoMode = true
+
+    // 🔗 modules
+    private var ble: MicrobitBleSender? = null
+    private var ai: AIController? = null
+    private var server: RobotWebSocketServer? = null
 
     // -------------------------
-    // MODE CONTRÔLE GLOBAL
+    // INIT SYSTEM
+    // -------------------------
+
+    fun init() {
+
+        context?.let {
+            ble = MicrobitBleSender(it)
+        }
+
+        ai = AIController(this)
+
+        server = RobotWebSocketServer(this)
+        server?.start()
+    }
+
+    // -------------------------
+    // MODE CONTROL
     // -------------------------
 
     fun setAutoMode(enabled: Boolean) {
         autoMode = enabled
     }
 
-    fun isAutoMode(): Boolean {
-        return autoMode
-    }
+    fun isAutoMode(): Boolean = autoMode
 
     // -------------------------
-    // POINT D’ENTRÉE UNIQUE
+    // INPUT UNIFIÉ (WEB + IA + MANUEL)
     // -------------------------
 
     fun onCommand(cmd: String) {
 
         when (cmd) {
 
-            // 🔁 contrôle mode
             "auto_on" -> {
                 autoMode = true
                 return
@@ -38,7 +57,7 @@ class RobotController {
                 return
             }
 
-            // 🤖 commandes robot
+            // 🤖 commandes directes robot
             "avant",
             "gauche",
             "droite",
@@ -46,46 +65,54 @@ class RobotController {
             "reculer",
             "dechet" -> {
 
-                // ⚠️ IA OU MANUEL
-                // autoMode = IA autorisée
-                // autoMode = false → contrôle manuel uniquement
-
                 if (!autoMode) {
-                    microbit.send(cmd)
+                    send(cmd)
                 }
             }
         }
     }
 
     // -------------------------
-    // INTERFACE IA (AIController)
+    // IA INPUT
     // -------------------------
 
     fun onAICommand(cmd: String) {
-
-        // IA toujours autorisée en mode auto
         if (autoMode) {
-            microbit.send(cmd)
+            send(cmd)
         }
     }
 
     // -------------------------
-    // FAILSAFE (sécurité robot)
+    // ENVOI FINAL ROBOT
+    // -------------------------
+
+    private fun send(cmd: String) {
+
+        // 📡 BLE micro:bit
+        ble?.send(cmd)
+
+        // debug log
+        println("ROBOT >> $cmd")
+    }
+
+    // -------------------------
+    // SAFETY
     // -------------------------
 
     fun emergencyStop() {
-        microbit.send("stop")
+        send("stop")
     }
 
-    fun forceBackward() {
-        microbit.send("reculer")
+    fun forceRecul() {
+        send("reculer")
     }
 
     // -------------------------
-    // DEBUG / TEST
+    // CLEANUP
     // -------------------------
 
-    fun debugSend(cmd: String) {
-        microbit.send(cmd)
+    fun destroy() {
+        server?.stop()
+        ble?.disconnect()
     }
 }
