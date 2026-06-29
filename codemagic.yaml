@@ -2,7 +2,7 @@ workflows:
   android-build:
     name: Robot Android Build
 
-    max_build_duration: 360
+    max_build_duration: 120
 
     environment:
       vars:
