@@ -1,0 +1,28 @@
+workflows:
+  android-build:
+    name: Robot Android Build
+
+    max_build_duration: 360
+
+    environment:
+      vars:
+        GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4096m"
+      java: 17
+
+    scripts:
+      - name: Check project structure
+        script: |
+          ls -R
+
+      - name: Build debug APK
+        script: |
+          cd android
+          ./gradlew assembleDebug
+
+    artifacts:
+      - android/app/build/outputs/apk/debug/*.apk
+
+    publishing:
+      email:
+        recipients:
+          - example@email.com
