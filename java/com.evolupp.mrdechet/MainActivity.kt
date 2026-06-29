@@ -1,4 +1,4 @@
-package com.robot.control
+package com.evolupp.mrdechet
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
