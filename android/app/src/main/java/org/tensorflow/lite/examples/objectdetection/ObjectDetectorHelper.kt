@@ -116,6 +116,29 @@ class ObjectDetectorHelper(
 
         val results = objectDetector?.detect(tensorImage)
 
+        if (results != null) {
+
+    for (detection in results) {
+
+        val label =
+            detection.categories.firstOrNull()?.label ?: continue
+
+        val score =
+            detection.categories.firstOrNull()?.score ?: continue
+
+        // 📡 UI TensorFlow (inchangé)
+        objectDetectorListener?.onResults(
+            results,
+            inferenceTime,
+            tensorImage.height,
+            tensorImage.width
+        )
+
+        // 🤖 BRANCHEMENT V3 ROBOT
+        externalListener?.invoke(label, score)
+    }
+}
+
         inferenceTime = SystemClock.uptimeMillis() - inferenceTime
 
         // 📡 CALLBACK ORIGINAL TENSORFLOW
