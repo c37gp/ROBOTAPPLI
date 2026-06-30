@@ -1,9 +1,18 @@
-plugins {
-    id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
-    id 'androidx.navigation.safeargs'
-    id 'de.undercouch.download'
+// Top-level build file
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.1.4'
+    }
 }
+
+apply plugin: 'com.android.application'
+apply plugin: 'org.jetbrains.kotlin.android'
+apply plugin: 'androidx.navigation.safeargs'
+apply plugin: 'de.undercouch.download'
 
 android {
     namespace 'org.tensorflow.lite.examples.objectdetection'
