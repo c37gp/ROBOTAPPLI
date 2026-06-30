@@ -62,10 +62,10 @@ android {
     }
 }
 
-// Models download - use absolute path based on projectDir
-project.ext.ASSET_DIR = file("src/main/assets")
-project.ext.TEST_ASSETS_DIR = file("src/androidTest/assets")
-apply from: file("download_models.gradle")
+// Models download - COMMENTED OUT FOR NOW TO TEST BASIC BUILD
+// project.ext.ASSET_DIR = file("src/main/assets")
+// project.ext.TEST_ASSETS_DIR = file("src/androidTest/assets")
+// apply from: file("download_models.gradle")
 
 dependencies {
     implementation 'androidx.core:core-ktx:1.12.0'
