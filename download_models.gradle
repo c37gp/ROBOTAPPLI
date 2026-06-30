@@ -1,34 +1,41 @@
 // Gradle script to automatically download TensorFlow Lite models
-// Uncomment 'apply from: file("download_models.gradle")' in your build.gradle to use this
+// This script will download models during the build if they don't exist in assets/
 
-import java.net.URL
+import groovy.json.JsonSlurper
 
-ext {    modelUrls = [
-        'mobilenetv1': 'https://storage.googleapis.com/download.tensorflow.org/models/tflite/task_library/object_detection/mobile_object_localizer_v1_224_quant.tflite',
-        'efficientdet_lite0': 'https://storage.googleapis.com/download.tensorflow.org/models/tflite/task_library/object_detection/efficientdet_lite0_quant.tflite',
-        'efficientdet_lite1': 'https://storage.googleapis.com/download.tensorflow.org/models/tflite/task_library/object_detection/efficientdet_lite1_quant.tflite',
-        'efficientdet_lite2': 'https://storage.googleapis.com/download.tensorflow.org/models/tflite/task_library/object_detection/efficientdet_lite2_quant.tflite'
+// Model configurations
+ext {    models = [
+        [name: 'mobilenetv1', url: 'https://storage.googleapis.com/download.tensorflow.org/models/tflite/task_library/object_detection/mobile_object_localizer_v1_224_quant.tflite'],
+        [name: 'efficientdet_lite0', url: 'https://storage.googleapis.com/download.tensorflow.org/models/tflite/task_library/object_detection/efficientdet_lite0_quant.tflite'],
+        [name: 'efficientdet_lite1', url: 'https://storage.googleapis.com/download.tensorflow.org/models/tflite/task_library/object_detection/efficientdet_lite1_quant.tflite'],
+        [name: 'efficientdet_lite2', url: 'https://storage.googleapis.com/download.tensorflow.org/models/tflite/task_library/object_detection/efficientdet_lite2_quant.tflite']
     ]
-    modelDir = file("src/main/assets")
+    assetsDir = file("${project.projectDir}/src/main/assets")
 }
 
-task downloadModels(type: Copy) {    description = 'Downloads TensorFlow Lite models if not present'
-    doFirst {        modelUrls.each { name, url ->
-            def modelFile = file("${modelDir}/${name}.tflite")
-            if (!modelFile.exists()) {                println "Downloading ${name}.tflite..."
-                new URL(url).openStream().use { input ->
-                    modelFile.outputStream().use { output ->
-                        output << input
+// Create assets directory if it doesn't exist
+if (!assetsDir.exists()) {    assetsDir.mkdirs()
+}
+
+// Download models task
+task downloadTFLiteModels(type: Copy) {    description = 'Downloads TensorFlow Lite model files'
+    doFirst {        models.each { model ->
+            def modelFile = file("${assetsDir}/${model.name}.tflite")
+            if (!modelFile.exists()) {                println "Downloading ${model.name}.tflite from ${model.url}..."
+                try {                    def connection = new URL(model.url).openConnection()
+                    connection.connect()
+                    modelFile.withOutputStream { output ->
+                        output << connection.inputStream
                     }
+                    println "Successfully downloaded ${model.name}.tflite (${modelFile.length()} bytes)"
+                } catch (Exception e) {                    println "Failed to download ${model.name}.tflite: ${e.message}"
+                    throw e
                 }
-                println "Downloaded ${name}.tflite"
-            } else {                println "${name}.tflite already exists, skipping..."
+            } else {                println "${model.name}.tflite already exists (${modelFile.length()} bytes), skipping..."
             }
         }
     }
 }
 
-// Make the download task run before building
-gradle.buildFinished {    if (!file(modelDir).exists()) {        file(modelDir).mkdirs()
-    }
-}
+// Make sure models are downloaded before building
+preBuild.dependsOn downloadTFLiteModels
