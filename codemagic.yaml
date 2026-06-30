@@ -27,10 +27,6 @@ workflows:
         script: |
           ./gradlew --version
 
-      - name: List available tasks
-        script: |
-          ./gradlew tasks --all
-
       - name: Clean project
         script: |
           ./gradlew clean
@@ -44,8 +40,9 @@ workflows:
           ./gradlew assembleRelease --stacktrace
 
     artifacts:
-      - android/app/build/outputs/apk/debug/*.apk
-      - android/app/build/outputs/apk/release/*.apk
+      - app/build/outputs/apk/debug/*.apk
+      - app/build/outputs/apk/release/*.apk
+      - app/build/outputs/bundle/release/*.aab
 
     publishing:
       email:
