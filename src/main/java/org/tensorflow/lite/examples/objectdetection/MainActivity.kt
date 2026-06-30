@@ -32,6 +32,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        
+        // ✅ FIX: Clear TensorFlow detector to prevent memory leaks
+        objectDetectorHelper.clearObjectDetector()
+        
         // Cleanup robot controller
         robotController.destroy()
     }
