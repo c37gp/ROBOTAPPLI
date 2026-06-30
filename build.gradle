@@ -13,6 +13,14 @@ buildscript {
     }
 }
 
+// THIS IS CRUCIAL - Without this, Gradle cannot find any dependencies
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
 apply plugin: 'com.android.application'
 apply plugin: 'org.jetbrains.kotlin.android'
 apply plugin: 'androidx.navigation.safeargs'
