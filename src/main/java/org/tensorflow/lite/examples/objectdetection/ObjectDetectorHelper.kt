@@ -39,6 +39,11 @@ class ObjectDetectorHelper(
         objectDetector = null
     }
 
+    // ✅ FIX: Add close method to properly clean up
+    fun close() {
+        objectDetector = null
+    }
+
     fun setupObjectDetector() {
 
         val optionsBuilder =
