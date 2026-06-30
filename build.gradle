@@ -1,11 +1,15 @@
 // Top-level build file
 buildscript {
+    ext.kotlin_version = '1.8.20'
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.1.4'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'androidx.navigation:navigation-safe-args-gradle-plugin:2.7.4'
+        classpath 'de.undercouch:gradle-download-task:5.4.0'
     }
 }
 
@@ -65,7 +69,7 @@ apply from: 'download_models.gradle'
 
 dependencies {
     implementation 'androidx.core:core-ktx:1.12.0'
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.8.20'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.10.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
