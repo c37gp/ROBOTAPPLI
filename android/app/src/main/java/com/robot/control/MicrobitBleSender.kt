@@ -1,8 +1,15 @@
 package com.robot.control
 
-import android.bluetooth.*
+import android.Manifest
+import android.annotation.SuppressLint
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothGatt
+import android.bluetooth.BluetoothGattCallback
+import android.bluetooth.BluetoothGattCharacteristic
+import android.bluetooth.BluetoothProfile
 import android.content.Context
-import java.util.*
+import android.os.Build
+import java.util.UUID
 
 class MicrobitBleSender(private val context: Context) {
 
@@ -15,14 +22,19 @@ class MicrobitBleSender(private val context: Context) {
     private val TX_UUID =
         UUID.fromString("6E400002-B5A3-F393-E0A9-E50E24DCCA9E")
 
+    @SuppressLint("MissingPermission")
     fun connect(device: BluetoothDevice) {
-
+        // For Android 12+, we need to handle BLUETOOTH_CONNECT permission
+        // This should be checked by the caller
         bluetoothGatt = device.connectGatt(context, false, object : BluetoothGattCallback() {
 
             override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
 
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
                     gatt.discoverServices()
+                } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                    bluetoothGatt = null
+                    txCharacteristic = null
                 }
             }
 
@@ -34,17 +46,24 @@ class MicrobitBleSender(private val context: Context) {
         })
     }
 
+    @SuppressLint("MissingPermission")
     fun send(command: String) {
 
         val char = txCharacteristic ?: return
+        val gatt = bluetoothGatt ?: return
 
         char.value = command.toByteArray()
 
-        bluetoothGatt?.writeCharacteristic(char)
+        gatt.writeCharacteristic(char)
     }
 
     fun disconnect() {
         bluetoothGatt?.close()
         bluetoothGatt = null
+        txCharacteristic = null
+    }
+
+    fun isConnected(): Boolean {
+        return bluetoothGatt != null
     }
 }

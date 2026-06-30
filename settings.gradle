@@ -1,1 +1,4 @@
-include ':app'
+// Settings file for the Android project
+// Include the app module from the android directory
+include ':android:app'
+project(':android:app').projectDir = file('android/app')

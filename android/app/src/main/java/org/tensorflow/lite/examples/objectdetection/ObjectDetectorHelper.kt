@@ -20,21 +20,15 @@ class ObjectDetectorHelper(
     var currentModel: Int = 0,
     val context: Context,
     val objectDetectorListener: DetectorListener?
-    // 🤖 BRANCHEMENT EXTERNE ROBOT (V3)
+) {
+
+    private var objectDetector: ObjectDetector? = null
+    
+    // External listener for robot integration
     private var externalListener: ((String, Float) -> Unit)? = null
 
     fun setExternalListener(listener: (String, Float) -> Unit) {
         externalListener = listener
-    }
-) {
-
-    private var objectDetector: ObjectDetector? = null
-
-    // 🤖 UPGRADE V2 : ROBOT HOOK
-    private var robotListener: ((String, Float) -> Unit)? = null
-
-    fun setRobotListener(listener: (String, Float) -> Unit) {
-        robotListener = listener
     }
 
     init {
@@ -117,48 +111,27 @@ class ObjectDetectorHelper(
         val results = objectDetector?.detect(tensorImage)
 
         if (results != null) {
-
-    for (detection in results) {
-
-        val label =
-            detection.categories.firstOrNull()?.label ?: continue
-
-        val score =
-            detection.categories.firstOrNull()?.score ?: continue
-
-        // 📡 UI TensorFlow (inchangé)
-        objectDetectorListener?.onResults(
-            results,
-            inferenceTime,
-            tensorImage.height,
-            tensorImage.width
-        )
-
-        // 🤖 BRANCHEMENT V3 ROBOT
-        externalListener?.invoke(label, score)
-    }
-}
-
-        inferenceTime = SystemClock.uptimeMillis() - inferenceTime
-
-        // 📡 CALLBACK ORIGINAL TENSORFLOW
-        objectDetectorListener?.onResults(
-            results,
-            inferenceTime,
-            tensorImage.height,
-            tensorImage.width
-        )
-
-        // 🤖 UPGRADE V2 : ENVOI ROBOT
-        if (results != null && robotListener != null) {
-
             for (detection in results) {
 
-                val label = detection.categories.firstOrNull()?.label ?: continue
-                val score = detection.categories.firstOrNull()?.score ?: continue
+                val label =
+                    detection.categories.firstOrNull()?.label ?: continue
 
-                robotListener?.invoke(label, score)
+                val score =
+                    detection.categories.firstOrNull()?.score ?: continue
+
+                // Call external listener for robot integration
+                externalListener?.invoke(label, score)
             }
+
+            inferenceTime = SystemClock.uptimeMillis() - inferenceTime
+
+            // Call original TensorFlow UI callback
+            objectDetectorListener?.onResults(
+                results,
+                inferenceTime,
+                tensorImage.height,
+                tensorImage.width
+            )
         }
     }
 

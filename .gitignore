@@ -1,0 +1,73 @@
+# Android
+*.iml
+.idea/
+gradle/
+build/
+*.apk
+*.aab
+*.aar
+*.jar
+
+# Android Studio
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Gradle
+.gradle/
+build/
+dist/
+
+# Local properties
+local.properties
+*.properties
+
+# Keystores
+*.jks
+*.keystore
+
+# Signing files
+*.pem
+*.pk8
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# CodeMagic
+codemagic.yaml
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Test results
+**/build/reports/
+**/build/test-results/
+
+# Android cache
+*.gradle
+
+# IDE
+.idea/
+*.swp
+*.swo
+*~
+
+# Node (if used for web components)
+node_modules/
+npm-debug.log
+
+# Models (downloaded automatically)
+**/assets/*.tflite
+**/assets/*.tflite.zip

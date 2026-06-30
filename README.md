@@ -1,54 +1,182 @@
-# TensorFlow Lite Object Detection Android Demo
+# ROBOTAPPLI - Robot AI Detection
 
-### Overview
+An Android application for robot object detection and obstacle avoidance using TensorFlow Lite.
 
-This is a camera app that continuously detects the objects (bounding boxes and
-classes) in the frames seen by your device's back camera, with the option to use
-a quantized
-[MobileNet SSD](https://tfhub.dev/tensorflow/lite-model/ssd_mobilenet_v1/1/metadata/2),
-[EfficientDet Lite 0](https://tfhub.dev/tensorflow/lite-model/efficientdet/lite0/detection/metadata/1),
-[EfficientDet Lite1](https://tfhub.dev/tensorflow/lite-model/efficientdet/lite1/detection/metadata/1),
-or
-[EfficientDet Lite2](https://tfhub.dev/tensorflow/lite-model/efficientdet/lite2/detection/metadata/1)
-model trained on the [COCO dataset](http://cocodataset.org/). These instructions
-walk you through building and running the demo on an Android device.
+## Features
 
-The model files are downloaded via Gradle scripts when you build and run the
-app. You don't need to do any steps to download TFLite models into the project
-explicitly.
+- Real-time object detection using TensorFlow Lite models
+- Obstacle avoidance AI for robot navigation
+- Bluetooth LE communication with micro:bit
+- Web server for remote control
+- Multiple detection models supported (MobileNet V1, EfficientDet Lite0/1/2)
 
-This application should be run on a physical Android device.
+## Project Structure
 
-![App example showing UI controls. Highlights a cat](https://storage.googleapis.com/download.tensorflow.org/tflite/examples/obj_detection_cat.gif)
+```
+ROBOTAPPLI/
+├── android/
+│   └── app/
+│       ├── src/
+│       │   ├── main/
+│       │   │   ├── java/
+│       │   │   │   ├── com/robot/ai/          # AI components
+│       │   │   │   ├── com/robot/control/    # Robot control components
+│       │   │   │   └── org/tensorflow/       # TensorFlow detection
+│       │   │   └── res/                      # Resources
+│       │   └── androidTest/                 # Instrumented tests
+│       ├── build.gradle                     # App module build config
+│       └── download_models.gradle          # Model download tasks
+├── build.gradle                            # Project build config
+├── settings.gradle                         # Project settings
+├── codemagic.yaml                          # CodeMagic CI configuration
+└── gradle.properties                       # Gradle properties
+```
 
-![App example showing UI controls. Highlights a cat, a book, and a couch.](screenshot1.png)
+## Prerequisites
 
+- Android Studio 2023.2+ (Chipmunk or later)
+- Java 17 JDK
+- Android SDK 34
+- Gradle 8.4+
 
-## Build the demo using Android Studio
+## Building with CodeMagic
 
-### Prerequisites
+The project is configured to build automatically with CodeMagic. The `codemagic.yaml` file contains the build configuration.
 
-*   The **[Android Studio](https://developer.android.com/studio/index.html)**
-    IDE. This sample has been tested on Android Studio Bumblebee.
+### Required Environment Variables
 
-*   A physical Android device with a minimum OS version of SDK 24 (Android 7.0 -
-    Nougat) with developer mode enabled. The process of enabling developer mode
-    may vary by device.
+- `JAVA_HOME` - Path to Java 17 JDK
+- Android SDK with API level 34
 
-### Building
+### Build Commands
 
-*   Open Android Studio. From the Welcome screen, select Open an existing
-    Android Studio project.
+```bash
+# Clean the project
+./gradlew clean
 
-*   From the Open File or Project window that appears, navigate to and select
-    the tensorflow-lite/examples/object_detection/android directory. Click OK.
+# Build debug APK
+./gradlew :android:app:assembleDebug
 
-*   If it asks you to do a Gradle Sync, click OK.
+# Build release APK
+./gradlew :android:app:assembleRelease
 
-*   With your Android device connected to your computer and developer mode
-    enabled, click on the green Run arrow in Android Studio.
+# Run tests
+./gradlew :android:app:testDebugUnitTest
+./gradlew :android:app:connectedAndroidTest
+```
 
-### Models used
+## Building Locally
 
-Downloading, extraction, and placing the models into the assets folder is
-managed automatically by the download.gradle file.
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/c37gp/ROBOTAPPLI.git
+   cd ROBOTAPPLI
+   ```
+
+2. Make gradlew executable:
+   ```bash
+   chmod +x gradlew
+   ```
+
+3. Build the project:
+   ```bash
+   ./gradlew :android:app:assembleDebug
+   ```
+
+4. The APK will be generated at:
+   ```
+   android/app/build/outputs/apk/debug/app-debug.apk
+   ```
+
+## Required Permissions
+
+The app requires the following permissions:
+- `CAMERA` - For object detection
+- `BLUETOOTH`, `BLUETOOTH_ADMIN`, `BLUETOOTH_CONNECT`, `BLUETOOTH_SCAN` - For micro:bit communication
+- `ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION` - For Bluetooth scanning (Android 12+)
+- `INTERNET` - For web server functionality
+
+## Configuration
+
+### TensorFlow Models
+
+The app downloads the following models on first run:
+- MobileNet V1
+- EfficientDet Lite0
+- EfficientDet Lite1  
+- EfficientDet Lite2
+
+Models are downloaded to the `assets` directory.
+
+### AI Configuration
+
+The obstacle avoidance AI uses the following logic:
+- **High priority obstacles** (person, car, chair, table, wall): Trigger avoidance
+- **Trash detection** (bottle, plastic, can, trash): Highest priority
+- **Distance estimation**: Based on detection confidence score
+- **Decision smoothing**: Uses 3-frame history for stable decisions
+
+## Usage
+
+1. Connect to a micro:bit via Bluetooth
+2. Launch the app
+3. Point the camera at objects
+4. The robot will automatically avoid obstacles and detect trash
+
+### Commands
+
+- `avant` - Move forward
+- `gauche` - Turn left
+- `droite` - Turn right
+- `stop` - Stop
+- `reculer` - Move backward
+- `dechet` - Trash detected
+- `auto_on` - Enable auto mode
+- `auto_off` - Disable auto mode
+
+## Web Server
+
+The app includes a web server on port 8765 for remote control:
+
+```bash
+# Send command via HTTP POST
+curl -X POST http://<device-ip>:8765 -d "cmd=avant"
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Build fails with Java version error**:
+   - Ensure Java 17 is installed and `JAVA_HOME` is set
+   - Update `gradle.properties` to use Java 17
+
+2. **Bluetooth connection issues**:
+   - Ensure location services are enabled (required for Android 12+)
+   - Grant all required permissions
+
+3. **Model download fails**:
+   - Check internet connection
+   - Models will be downloaded on first run
+
+4. **Camera not working**:
+   - Ensure camera permission is granted
+   - Test on a physical device (emulators may have camera issues)
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run tests
+5. Submit a pull request
+
+## License
+
+This project is licensed under the Apache License, Version 2.0. See the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- TensorFlow Lite for object detection
+- Android CameraX for camera functionality
+- NanoHTTPD for web server implementation

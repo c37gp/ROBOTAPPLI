@@ -6,6 +6,8 @@ workflows:
 
     environment:
       java: 17
+      android_signing:
+        - robot_release
       vars:
         GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4096m"
 
@@ -13,7 +15,7 @@ workflows:
       - name: Show environment
         script: |
           java -version
-          ls -R
+          echo "Java Home: $JAVA_HOME"
 
       - name: Fix gradlew permissions
         script: |
@@ -29,11 +31,16 @@ workflows:
 
       - name: Build debug APK
         script: |
-          ./gradlew assembleDebug --stacktrace
+          ./gradlew :android:app:assembleDebug --stacktrace
+
+      - name: Build release APK
+        script: |
+          ./gradlew :android:app:assembleRelease --stacktrace
 
     artifacts:
-      - app/build/outputs/apk/debug/*.apk
       - android/app/build/outputs/apk/debug/*.apk
+      - android/app/build/outputs/apk/release/*.apk
+      - android/app/build/outputs/bundle/release/*.aab
 
     publishing:
       email:

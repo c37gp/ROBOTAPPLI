@@ -5,10 +5,10 @@ import com.robot.ai.AIController
 
 class RobotController(private val context: Context? = null) {
 
-    // 🤖 modes
+    // Modes
     private var autoMode = true
 
-    // 🔗 modules
+    // Modules
     private var ble: MicrobitBleSender? = null
     private var ai: AIController? = null
     private var server: RobotWebSocketServer? = null
@@ -18,7 +18,6 @@ class RobotController(private val context: Context? = null) {
     // -------------------------
 
     fun init() {
-
         context?.let {
             ble = MicrobitBleSender(it)
         }
@@ -44,6 +43,16 @@ class RobotController(private val context: Context? = null) {
     // -------------------------
 
     fun onCommand(cmd: String) {
+        // Parse detection commands from TensorFlow
+        if (cmd.startsWith("detect:")) {
+            val parts = cmd.split(":")
+            if (parts.size >= 3) {
+                val label = parts[1]
+                val score = parts[2].toFloatOrNull() ?: 0f
+                ai?.onDetection(label, score)
+                return
+            }
+        }
 
         when (cmd) {
 
@@ -57,7 +66,7 @@ class RobotController(private val context: Context? = null) {
                 return
             }
 
-            // 🤖 commandes directes robot
+            // Commandes directes robot
             "avant",
             "gauche",
             "droite",
@@ -88,7 +97,7 @@ class RobotController(private val context: Context? = null) {
 
     private fun send(cmd: String) {
 
-        // 📡 BLE micro:bit
+        // BLE micro:bit
         ble?.send(cmd)
 
         // debug log

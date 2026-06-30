@@ -3,12 +3,10 @@ package org.tensorflow.lite.examples.objectdetection
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.robot.control.RobotController
-import com.robot.ai.AIController
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var robotController: RobotController
-    private lateinit var aiController: AIController
     private lateinit var objectDetectorHelper: ObjectDetectorHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -16,21 +14,25 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
-        // 🤖 ROBOT LAYER
-        robotController = RobotController()
+        // Initialize Robot Controller with context for BLE
+        robotController = RobotController(this)
+        robotController.init()
 
-        // 🧠 IA DECISION LAYER
-        aiController = AIController(robotController)
-
-        // 📷 TENSORFLOW INIT
+        // Initialize TensorFlow Object Detector
         objectDetectorHelper = ObjectDetectorHelper(
             context = this,
             objectDetectorListener = null
         )
 
-        // 🔥 BRANCHEMENT FINAL (IMPORTANT)
+        // Connect TensorFlow detection to Robot AI
         objectDetectorHelper.setExternalListener { label, score ->
-            aiController.onDetection(label, score)
+            robotController.onCommand("detect:$label:$score")
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Cleanup robot controller
+        robotController.destroy()
     }
 }
