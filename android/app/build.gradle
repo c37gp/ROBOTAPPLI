@@ -20,6 +20,9 @@ apply plugin: 'kotlin-kapt'
 apply plugin: "androidx.navigation.safeargs"
 apply plugin: 'de.undercouch.download'
 
+// Define kotlin version locally for this module
+def kotlin_version = '1.8.20'
+
 android {
     namespace 'org.tensorflow.lite.examples.objectdetection'
     compileSdkVersion 34
@@ -93,7 +96,7 @@ dependencies {
     implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
 
     // Navigation library
-    def nav_version = "2.6.0"
+    def nav_version = "2.7.4"
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
 

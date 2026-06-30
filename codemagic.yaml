@@ -16,6 +16,8 @@ workflows:
         script: |
           java -version
           echo "Java Home: $JAVA_HOME"
+          pwd
+          ls -la
 
       - name: Fix gradlew permissions
         script: |
@@ -25,22 +27,25 @@ workflows:
         script: |
           ./gradlew --version
 
+      - name: List available tasks
+        script: |
+          ./gradlew tasks --all
+
       - name: Clean project
         script: |
           ./gradlew clean
 
       - name: Build debug APK
         script: |
-          ./gradlew :android:app:assembleDebug --stacktrace
+          ./gradlew assembleDebug --stacktrace
 
       - name: Build release APK
         script: |
-          ./gradlew :android:app:assembleRelease --stacktrace
+          ./gradlew assembleRelease --stacktrace
 
     artifacts:
       - android/app/build/outputs/apk/debug/*.apk
       - android/app/build/outputs/apk/release/*.apk
-      - android/app/build/outputs/bundle/release/*.aab
 
     publishing:
       email:
