@@ -26,9 +26,18 @@ apply plugin: 'org.jetbrains.kotlin.android'
 apply plugin: 'androidx.navigation.safeargs'
 apply plugin: 'de.undercouch.download'
 
+// ✅ FIX: Enable automatic model download
+apply from: file("download_models.gradle")
+
 android {
     namespace 'org.tensorflow.lite.examples.objectdetection'
     compileSdk 34
+
+    // ✅ FIX: Ensure .tflite files are not compressed
+    aaptOptions {
+        noCompress 'tflite'
+        additionalParameters "--auto-add-overlay"
+    }
 
     defaultConfig {
         applicationId "org.tensorflow.lite.examples.objectdetection"
@@ -70,10 +79,9 @@ android {
     }
 }
 
-// Models download - COMMENTED OUT FOR NOW TO TEST BASIC BUILD
-// project.ext.ASSET_DIR = file("src/main/assets")
-// project.ext.TEST_ASSETS_DIR = file("src/androidTest/assets")
-// apply from: file("download_models.gradle")
+// Models download - Now enabled
+project.ext.ASSET_DIR = file("src/main/assets")
+project.ext.TEST_ASSETS_DIR = file("src/androidTest/assets")
 
 dependencies {
     implementation 'androidx.core:core-ktx:1.12.0'
