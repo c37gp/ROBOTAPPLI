@@ -75,6 +75,13 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener {
 
     override fun onDestroyView() {
         _fragmentCameraBinding = null
+        
+        // ✅ FIX: Unbind camera to prevent memory leaks
+        cameraProvider?.unbindAll()
+        
+        // ✅ FIX: Clear TensorFlow detector to free memory
+        objectDetectorHelper.clearObjectDetector()
+        
         super.onDestroyView()
 
         // Shut down our background executor
