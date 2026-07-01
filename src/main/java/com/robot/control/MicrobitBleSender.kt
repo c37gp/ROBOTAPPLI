@@ -76,4 +76,7 @@ class MicrobitBleSender(private val context: Context) {
             write(queue.removeFirst())
         }
     }
+    fun onDisconnected(){
+        connected = false
+    }
 }
