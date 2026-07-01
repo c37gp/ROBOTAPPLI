@@ -20,6 +20,7 @@ class ObjectDetectorHelper(
     var currentModel: Int = 0,
     val context: Context,
     val objectDetectorListener: DetectorListener?
+    var navigationListener: ((List<SceneAnalyzer.Obj>) -> Unit)? = null
 ) {
 
     private var objectDetector: ObjectDetector? = null
