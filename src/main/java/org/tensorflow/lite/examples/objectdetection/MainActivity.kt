@@ -19,6 +19,7 @@ class MainActivity : AppCompatActivity() {
         // Initialize Robot Controller with context for BLE
         robotController = RobotController(this)
         robotController.init()
+        robot = RobotController()
 
         // Initialize TensorFlow Object Detector
         objectDetectorHelper = ObjectDetectorHelper(
