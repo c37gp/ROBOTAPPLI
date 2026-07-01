@@ -8,6 +8,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var robotController: RobotController
     private lateinit var objectDetectorHelper: ObjectDetectorHelper
+    private val analyzer = SceneAnalyzer()
+    private lateinit var robot: RobotController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
