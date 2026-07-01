@@ -114,6 +114,19 @@ class ObjectDetectorHelper(
                 .build()
 
         val tensorImage = imageProcessor.process(TensorImage.fromBitmap(image))
+        val converted = results?.mapNotNull {
+            val box = it.boundingBox
+            SceneAnalyzer.Obj(
+                it.categories[0].label,
+                box.left,
+                box.top,
+                box.width(),
+                box.height(),
+                it.categories[0].score
+            )
+        } ?: emptyList()
+
+        navigationListener?.invoke(converted)
 
         val results = objectDetector?.detect(tensorImage)
 
