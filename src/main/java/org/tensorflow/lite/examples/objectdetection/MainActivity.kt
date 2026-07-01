@@ -20,6 +20,19 @@ class MainActivity : AppCompatActivity() {
         robotController = RobotController(this)
         robotController.init()
         robot = RobotController()
+        objectDetectorHelper.navigationListener = { objects ->
+
+            val action = analyzer.decide(objects)
+        
+            when(action){
+                SceneAnalyzer.Action.FORWARD -> robot.forward()
+                SceneAnalyzer.Action.LEFT -> robot.left()
+                SceneAnalyzer.Action.RIGHT -> robot.right()
+                SceneAnalyzer.Action.BACK -> robot.back()
+                SceneAnalyzer.Action.STOP -> robot.stop()
+                SceneAnalyzer.Action.FOLLOW_GARBAGE -> robot.followGarbage()
+            }
+        }
 
         // Initialize TensorFlow Object Detector
         objectDetectorHelper = ObjectDetectorHelper(
