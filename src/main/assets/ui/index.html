@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Robot Control</title>
+
+<style>
+body { margin:0; background:#0f0f0f; color:white; font-family:Arial; }
+
+#video {
+  width:100%;
+  height:40vh;
+  background:black;
+}
+
+canvas {
+  position:absolute;
+  top:0;
+  left:0;
+}
+
+#controls {
+  position:fixed;
+  bottom:20px;
+  width:100%;
+  display:flex;
+  justify-content:center;
+}
+
+.btn {
+  width:70px;
+  height:70px;
+  border-radius:50%;
+  margin:10px;
+  background:#333;
+  color:white;
+  font-size:24px;
+}
+
+#stop { background:red; }
+</style>
+</head>
+
+<body>
+
+<div style="position:relative">
+  <img id="video">
+  <canvas id="overlay"></canvas>
+</div>
+
+<div id="controls">
+  <button class="btn" onclick="cmd('left')">←</button>
+  <button class="btn" onclick="cmd('forward')">↑</button>
+  <button class="btn" id="stop" onclick="cmd('stop')">■</button>
+  <button class="btn" onclick="cmd('back')">↓</button>
+  <button class="btn" onclick="cmd('right')">→</button>
+</div>
+
+<script>
+const ws = new WebSocket("ws://192.168.1.36:8080");
+
+function cmd(c){
+  ws.send(JSON.stringify({type:"cmd", value:c}));
+}
+
+ws.onmessage = (e)=>{
+  const data = JSON.parse(e.data);
+
+  if(data.type === "frame"){
+    document.getElementById("video").src = "data:image/jpeg;base64," + data.image;
+  }
+
+  if(data.type === "overlay"){
+    draw(data.objects);
+  }
+};
+
+function draw(objects){
+  const c = document.getElementById("overlay");
+  const ctx = c.getContext("2d");
+  ctx.clearRect(0,0,c.width,c.height);
+
+  objects.forEach(o=>{
+    ctx.strokeStyle = o.type==="garbage"?"green":"red";
+    ctx.strokeRect(o.x,o.y,o.w,o.h);
+  });
+}
+</script>
+
+</body>
+</html>
