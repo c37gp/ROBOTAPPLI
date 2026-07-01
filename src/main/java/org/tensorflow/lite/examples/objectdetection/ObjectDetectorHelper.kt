@@ -75,13 +75,14 @@ class ObjectDetectorHelper(
 
         optionsBuilder.setBaseOptions(baseOptionsBuilder.build())
 
+        // ✅ FIX: Use the correct model file names that user has downloaded
         val modelName =
             when (currentModel) {
-                MODEL_MOBILENETV1 -> "mobilenetv1.tflite"
-                MODEL_EFFICIENTDETV0 -> "efficientdet-lite0.tflite"
-                MODEL_EFFICIENTDETV1 -> "efficientdet-lite1.tflite"
-                MODEL_EFFICIENTDETV2 -> "efficientdet-lite2.tflite"
-                else -> "mobilenetv1.tflite"
+                MODEL_MOBILENETV1 -> "lite-model_ssd_mobilenet_v1_1_metadata_2.tflite"
+                MODEL_EFFICIENTDETV0 -> "lite-model_efficientdet_lite0_detection_metadata_1.tflite"
+                MODEL_EFFICIENTDETV1 -> "lite-model_efficientdet_lite1_detection_metadata_1.tflite"
+                MODEL_EFFICIENTDETV2 -> "lite-model_efficientdet_lite2_detection_metadata_1.tflite"
+                else -> "lite-model_ssd_mobilenet_v1_1_metadata_2.tflite"
             }
 
         try {
